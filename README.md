@@ -35,7 +35,7 @@ pet_seg/
 git clone https://github.com/SanyaLikeIT/pet-foreground-segmentation.git
 cd pet-foreground-segmentation
 pip install -r requirements.txt
-
+```
 ## Data preparation
 
 Download the dataset and create the splits:
