@@ -48,13 +48,13 @@ class PetSegDataset(Dataset):
         return image, mask
 
 
-def get_train_transform():
+def get_train_transform(seed=42):
     return A.Compose([
         A.Resize(256, 256),
         A.HorizontalFlip(p=0.5),
         A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
         ToTensorV2(),
-    ])
+    ], seed=seed)
 
 def get_val_transform():
     return A.Compose([
