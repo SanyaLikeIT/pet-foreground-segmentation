@@ -11,6 +11,7 @@ from torch.utils.data import DataLoader
 
 from src.dataset import PetSegDataset, get_train_transform, get_val_transform
 from src.model import UNet
+from src.losses import make_loss
 
 
 @dataclass
@@ -27,9 +28,12 @@ class TrainingConfig:
     pretrained_encoder: bool = True
     device: str = "auto"
     patience: int = 5
+    loss: str = "bce"
+    dice_weight: float = 1.0
 
 
 def validate_config(config):
+    make_loss(config.loss, config.dice_weight)
     if config.epochs < 1 or config.batch_size < 1 or config.learning_rate <= 0:
         raise ValueError("epochs, batch_size and learning_rate must be positive")
     if config.weight_decay < 0 or config.num_workers < 0:
@@ -53,9 +57,10 @@ def set_seed(seed):
 def select_device(requested_device):
     if requested_device == "auto":
         requested_device = "cuda" if torch.cuda.is_available() else "cpu"
-    if requested_device == "cuda" and not torch.cuda.is_available():
+    device = torch.device(requested_device)
+    if device.type == "cuda" and not torch.cuda.is_available():
         raise RuntimeError("CUDA was requested but is unavailable")
-    return torch.device(requested_device)
+    return device
 
 
 def create_loaders(config, device):
@@ -96,10 +101,12 @@ def run_epoch(model, loader, criterion, device, optimizer=None, encoder_trainabl
     return total_loss / total_samples
 
 
-def save_history(output_dir, config, loss_name, history, best_epoch, best_val_loss):
+def save_history(output_dir, config, loss_name, history, best_epoch, best_val_loss, dice_weight=None):
     summary = {
         "config": asdict(config),
         "loss": loss_name,
+        "dice_weight": config.dice_weight if dice_weight is None else dice_weight,
+        "selection_metric": "val_loss",
         "best_epoch": best_epoch,
         "best_val_loss": best_val_loss,
         "epochs": history,
@@ -108,7 +115,7 @@ def save_history(output_dir, config, loss_name, history, best_epoch, best_val_lo
     return summary
 
 
-def save_checkpoint(output_dir, model, optimizer, config, epoch, val_loss):
+def save_checkpoint(output_dir, model, optimizer, config, epoch, val_loss, loss_name=None, dice_weight=None):
     torch.save(
         {
             "model_state": model.state_dict(),
@@ -116,6 +123,9 @@ def save_checkpoint(output_dir, model, optimizer, config, epoch, val_loss):
             "config": asdict(config),
             "epoch": epoch,
             "val_loss": val_loss,
+            "loss": loss_name or config.loss,
+            "dice_weight": config.dice_weight if dice_weight is None else dice_weight,
+            "selection_metric": "val_loss",
         },
         output_dir / "best.pt",
     )
@@ -131,7 +141,7 @@ def train_model(config, criterion=None):
         model.parameters(), lr=config.learning_rate, weight_decay=config.weight_decay
     )
     if criterion is None:
-        criterion = nn.BCEWithLogitsLoss()
+        criterion = make_loss(config.loss, config.dice_weight)
     if isinstance(criterion, nn.Module):
         criterion = criterion.to(device)
 
@@ -141,6 +151,7 @@ def train_model(config, criterion=None):
     best_epoch = 0
     history = []
     loss_name = type(criterion).__name__
+    effective_dice_weight = getattr(criterion, "dice_weight", 0.0)
 
     for epoch in range(1, config.epochs + 1):
         train_loss = run_epoch(
@@ -154,13 +165,16 @@ def train_model(config, criterion=None):
         if val_loss < best_val_loss:
             best_val_loss = val_loss
             best_epoch = epoch
-            save_checkpoint(output_dir, model, optimizer, config, epoch, val_loss)
-        save_history(output_dir, config, loss_name, history, best_epoch, best_val_loss)
+            save_checkpoint(output_dir, model, optimizer, config, epoch, val_loss,
+                            loss_name, effective_dice_weight)
+        save_history(output_dir, config, loss_name, history, best_epoch, best_val_loss,
+                     effective_dice_weight)
         if config.patience and epoch - best_epoch >= config.patience:
             print(f"early stopping at epoch {epoch}")
             break
 
-    return save_history(output_dir, config, loss_name, history, best_epoch, best_val_loss)
+    return save_history(output_dir, config, loss_name, history, best_epoch, best_val_loss,
+                        effective_dice_weight)
 
 
 def parse_args():
@@ -177,6 +191,8 @@ def parse_args():
     parser.add_argument("--random-encoder", action="store_true")
     parser.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
     parser.add_argument("--patience", type=int, default=5)
+    parser.add_argument("--loss", choices=("bce", "bce_dice"), default="bce")
+    parser.add_argument("--dice-weight", type=float, default=1.0)
     return parser.parse_args()
 
 
@@ -195,6 +211,8 @@ def main():
         pretrained_encoder=not args.random_encoder,
         device=args.device,
         patience=args.patience,
+        loss=args.loss,
+        dice_weight=args.dice_weight,
     )
     train_model(config)
 

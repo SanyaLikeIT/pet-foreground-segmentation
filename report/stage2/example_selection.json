@@ -1,0 +1,145 @@
+{
+  "split": "val",
+  "threshold": 0.5,
+  "random_seed": 42,
+  "checkpoint_sha256": "454736b54b8308d404e0609c33874b37d9bc1712b2b6576088ff9fcd760e3d5e",
+  "poor_selection": "Lowest per-image foreground IoU, ties broken by image_id",
+  "poor_nonempty_selection": "Lowest per-image foreground IoU among nonempty targets; supplementary analysis only",
+  "empty_target_count": 3,
+  "examples": [
+    {
+      "image_id": "Ragdoll_189",
+      "dataset_index": "654",
+      "input_sha256": "61599f55d3708eef3bafafd89be56fe6b1228af32f4a018538a7029ff76ac05a",
+      "target_sha256": "08eed604380a2ef662a7c018058f810241eef44fe38a79d0eceaeb1dad7131d8",
+      "foreground_iou": "0.9169932522026107",
+      "foreground_dice": "0.956699509660759",
+      "correct_pixels": "62719",
+      "total_pixels": "65536",
+      "true_positive_pixels": "31120",
+      "false_positive_pixels": "811",
+      "false_negative_pixels": "2006"
+    },
+    {
+      "image_id": "boxer_170",
+      "dataset_index": "114",
+      "input_sha256": "f623cc7cc3e3523c5237ed644dc7e098a2b4350fd8ef9e6c23887f138b9ca59d",
+      "target_sha256": "bd5ed84a573e8d152889452d92f2a78d8d24c22b8eeff66e79671483fd3ece78",
+      "foreground_iou": "0.6601245119763638",
+      "foreground_dice": "0.7952710862518274",
+      "correct_pixels": "59094",
+      "total_pixels": "65536",
+      "true_positive_pixels": "12512",
+      "false_positive_pixels": "290",
+      "false_negative_pixels": "6152"
+    },
+    {
+      "image_id": "beagle_169",
+      "dataset_index": "25",
+      "input_sha256": "1fdaab6e342be8200257d9c5a9a7931e24ef8dd8e457325044c629ce1a4af3e0",
+      "target_sha256": "f04f2e898389e56b64e4396eec19e8390b1cd3d951adeed255a89040dccc8730",
+      "foreground_iou": "0.7946442118039752",
+      "foreground_dice": "0.8855729805131674",
+      "correct_pixels": "60122",
+      "total_pixels": "65536",
+      "true_positive_pixels": "20950",
+      "false_positive_pixels": "5002",
+      "false_negative_pixels": "412"
+    },
+    {
+      "image_id": "Abyssinian_12",
+      "dataset_index": "281",
+      "input_sha256": "84785847b2a585a33c2f6163e4297efb6ffc5d786be72109079eb0a6bf049ed1",
+      "target_sha256": "aa5c3269745b1e2f8c128bee67e76ac6eff856bfa77a498e77da0c24a627e900",
+      "foreground_iou": "0.6595670694601409",
+      "foreground_dice": "0.7948664222105815",
+      "correct_pixels": "61620",
+      "total_pixels": "65536",
+      "true_positive_pixels": "7587",
+      "false_positive_pixels": "3400",
+      "false_negative_pixels": "516"
+    }
+  ],
+  "poor_predictions": [
+    {
+      "image_id": "Egyptian_Mau_165",
+      "dataset_index": "460",
+      "input_sha256": "bc37473cc7fe125c7f8681764b1a75fd65cb210d0e91b1e5bf9cfd07110f9994",
+      "target_sha256": "8a39d2abd3999ab73c34db2476849cddf303ce389b35826850f9a700589b4a90",
+      "foreground_iou": "0.0",
+      "foreground_dice": "0.0",
+      "correct_pixels": "31860",
+      "total_pixels": "65536",
+      "true_positive_pixels": "0",
+      "false_positive_pixels": "33676",
+      "false_negative_pixels": "0"
+    },
+    {
+      "image_id": "Egyptian_Mau_196",
+      "dataset_index": "340",
+      "input_sha256": "533961305d087924bb3e86665acb07ac94537485c00b0a3e0c95a5980337b554",
+      "target_sha256": "8a39d2abd3999ab73c34db2476849cddf303ce389b35826850f9a700589b4a90",
+      "foreground_iou": "0.0",
+      "foreground_dice": "0.0",
+      "correct_pixels": "40489",
+      "total_pixels": "65536",
+      "true_positive_pixels": "0",
+      "false_positive_pixels": "25047",
+      "false_negative_pixels": "0"
+    },
+    {
+      "image_id": "saint_bernard_108",
+      "dataset_index": "263",
+      "input_sha256": "b81e9b140f696035d1e48d1f5fadc484bb6e1a3958d9acc056af13665dc96d4b",
+      "target_sha256": "8a39d2abd3999ab73c34db2476849cddf303ce389b35826850f9a700589b4a90",
+      "foreground_iou": "0.0",
+      "foreground_dice": "0.0",
+      "correct_pixels": "54313",
+      "total_pixels": "65536",
+      "true_positive_pixels": "0",
+      "false_positive_pixels": "11223",
+      "false_negative_pixels": "0"
+    }
+  ],
+  "poor_nonempty_predictions": [
+    {
+      "image_id": "Abyssinian_164",
+      "dataset_index": "373",
+      "input_sha256": "fbcb40eb71728215248f7b0a9c67c43aae2b70b4f93426b524cf738368a787a9",
+      "target_sha256": "3c48e08f2378b244daef309d5cdc9f64b9ca82362721ebaf348316d0af8be76a",
+      "foreground_iou": "0.10282300224047797",
+      "foreground_dice": "0.18647235690874123",
+      "correct_pixels": "35503",
+      "total_pixels": "65536",
+      "true_positive_pixels": "3442",
+      "false_positive_pixels": "30012",
+      "false_negative_pixels": "21"
+    },
+    {
+      "image_id": "beagle_147",
+      "dataset_index": "416",
+      "input_sha256": "66dc6f6d2fdb2e024227fdbcc8e57757dcd6d8b4663977968f389c7f890a5a34",
+      "target_sha256": "137b5466156e4310f3d0211c65aad9f8bd682b18be03c32c4dfe9b3d5e5aa4f3",
+      "foreground_iou": "0.2503278995690463",
+      "foreground_dice": "0.40041960137869026",
+      "correct_pixels": "61535",
+      "total_pixels": "65536",
+      "true_positive_pixels": "1336",
+      "false_positive_pixels": "3244",
+      "false_negative_pixels": "757"
+    },
+    {
+      "image_id": "pomeranian_18",
+      "dataset_index": "307",
+      "input_sha256": "ef7bee9a0b98e6f74209916b5178cc546eaa60e9e18f767b74830d81696b7db7",
+      "target_sha256": "6a298a4ce39ddaf66034dfa813c5e0907335462fbaf33bdb5293f6680789fd21",
+      "foreground_iou": "0.2880732298303868",
+      "foreground_dice": "0.4472932487981607",
+      "correct_pixels": "49670",
+      "total_pixels": "65536",
+      "true_positive_pixels": "6420",
+      "false_positive_pixels": "15403",
+      "false_negative_pixels": "463"
+    }
+  ]
+}

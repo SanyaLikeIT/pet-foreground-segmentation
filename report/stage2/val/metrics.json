@@ -1,0 +1,51 @@
+{
+  "split": "val",
+  "sample_count": 736,
+  "threshold": 0.5,
+  "checkpoint_path": "/home/perugius/Desktop/CV/pet-foreground-segmentation/runs/baseline/best.pt",
+  "checkpoint_sha256": "454736b54b8308d404e0609c33874b37d9bc1712b2b6576088ff9fcd760e3d5e",
+  "checkpoint_epoch": 11,
+  "checkpoint_val_loss": 0.10701909580308458,
+  "checkpoint_config": {
+    "data_root": "data/raw",
+    "output_dir": "runs/baseline",
+    "epochs": 20,
+    "batch_size": 8,
+    "learning_rate": 0.0003,
+    "weight_decay": 0.0001,
+    "num_workers": 0,
+    "seed": 42,
+    "freeze_encoder_epochs": 0,
+    "pretrained_encoder": true,
+    "device": "auto",
+    "patience": 5
+  },
+  "data_root": "/home/perugius/Desktop/CV/pet-foreground-segmentation/data/raw",
+  "split_sha256": "b506ff08cab214667087ac3c6fe0954a73956a48b5aed5d6ee7c1045bcca3076",
+  "device": "cuda",
+  "batch_size": 8,
+  "metric_definitions": {
+    "foreground_iou": "Per-image TP / (TP + FP + FN), arithmetic mean over images",
+    "foreground_dice": "Per-image 2*TP / (2*TP + FP + FN), arithmetic mean over images",
+    "pixel_accuracy": "Total correct foreground/background pixels / total evaluated pixels",
+    "empty_mask_convention": "Both prediction and target empty: IoU=Dice=1; only one empty: 0",
+    "prediction": "sigmoid(raw logits) >= threshold; trimap == 1 is foreground"
+  },
+  "metrics": {
+    "foreground_iou": 0.8529982624560063,
+    "foreground_dice": 0.9150951329019061,
+    "pixel_accuracy": 0.9577102661132812
+  },
+  "batch_size_check": {
+    "other_batch_size": 3,
+    "aggregate_absolute_differences": {
+      "foreground_iou": 3.694687666477847e-06,
+      "foreground_dice": 2.9565927587293928e-06,
+      "pixel_accuracy": 6.634256114468329e-07
+    },
+    "max_per_image_score_difference": 0.0010483084910366536,
+    "aggregate_tolerance": 1e-05,
+    "per_image_tolerance": 0.001,
+    "passed": false
+  }
+}

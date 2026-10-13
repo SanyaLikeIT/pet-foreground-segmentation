@@ -8,7 +8,7 @@ import torch
 
 from src.check_dataset import denormalize
 from src.dataset import PetSegDataset, get_val_transform
-from src.model import UNet
+from src.evaluate import load_checkpoint_model
 from src.train import select_device
 
 
@@ -36,11 +36,7 @@ def select_indices(dataset_size, count, indices, seed):
 
 
 def load_model(checkpoint_path, device):
-    checkpoint = torch.load(checkpoint_path, map_location="cpu", weights_only=True)
-    model = UNet(pretrained_encoder=False)
-    model.load_state_dict(checkpoint["model_state"])
-    model.to(device)
-    model.eval()
+    model, _ = load_checkpoint_model(checkpoint_path, device)
     return model
 
 

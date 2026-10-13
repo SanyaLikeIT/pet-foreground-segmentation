@@ -1,0 +1,77 @@
+{
+  "checkpoint_path": "/home/perugius/Desktop/CV/pet-foreground-segmentation/runs/baseline/best.pt",
+  "history_path": "/home/perugius/Desktop/CV/pet-foreground-segmentation/runs/baseline/history.json",
+  "sha256": {
+    "runs/baseline/best.pt": "454736b54b8308d404e0609c33874b37d9bc1712b2b6576088ff9fcd760e3d5e",
+    "runs/baseline/history.json": "f44a5e072d4527dc754303a9aeba64b0bdd0fcb578e742e519f864d49cad5137"
+  },
+  "checkpoint_metadata": {
+    "config": {
+      "data_root": "data/raw",
+      "output_dir": "runs/baseline",
+      "epochs": 20,
+      "batch_size": 8,
+      "learning_rate": 0.0003,
+      "weight_decay": 0.0001,
+      "num_workers": 0,
+      "seed": 42,
+      "freeze_encoder_epochs": 0,
+      "pretrained_encoder": true,
+      "device": "auto",
+      "patience": 5
+    },
+    "epoch": 11,
+    "val_loss": 0.10701909580308458
+  },
+  "history_loss": "BCEWithLogitsLoss",
+  "best_epoch": 11,
+  "best_validation_bce": 0.10701909580308458,
+  "last_recorded_epoch": 16,
+  "history_consistent_with_early_stopping": true,
+  "checks": {
+    "strict_state_dict_load": true,
+    "checkpoint_epoch_matches_history": true,
+    "checkpoint_loss_matches_history": true,
+    "best_history_loss_is_minimum": true,
+    "checkpoint_config_matches_history": true,
+    "baseline_artifacts_unchanged": true
+  },
+  "dummy_forward_shape": [
+    1,
+    1,
+    256,
+    256
+  ],
+  "dummy_forward_finite": true,
+  "parameter_count": 24521697,
+  "environment": {
+    "python": "3.14.7",
+    "torch": "2.14.1+cu130",
+    "torchvision": "0.29.1+cu130",
+    "albumentations": "2.0.8",
+    "numpy": "2.5.2",
+    "cpu_model": "12th Gen Intel(R) Core(TM) i7-12650H",
+    "cuda_available": true,
+    "torch_cuda_build": "13.0",
+    "actual_device": "cuda",
+    "nvidia_smi": {
+      "return_code": 0,
+      "output": "NVIDIA GeForce RTX 4060 Laptop GPU, 8188 MiB, 615.71.09"
+    },
+    "device_name": "NVIDIA GeForce RTX 4060 Laptop GPU"
+  },
+  "splits": {
+    "sample_counts": {
+      "train": 2944,
+      "val": 736,
+      "test": 3669
+    },
+    "train_val_disjoint": true,
+    "trainval_complete": true,
+    "test_complete": true,
+    "index_namespaces": "Train/val indices address trainval; test indices address test"
+  },
+  "data_available": true,
+  "validation_data_status": "available",
+  "training_hardware": "Not recorded in original artifacts; cannot infer from this audit device"
+}
