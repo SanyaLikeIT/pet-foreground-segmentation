@@ -1,0 +1,11 @@
+{
+  "sample_counts": {
+    "train": 2944,
+    "val": 736,
+    "test": 3669
+  },
+  "train_val_disjoint": true,
+  "trainval_complete": true,
+  "test_complete": true,
+  "index_namespaces": "Train/val indices address trainval; test indices address test"
+}

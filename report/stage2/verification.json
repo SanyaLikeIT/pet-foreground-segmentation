@@ -1,0 +1,26 @@
+{
+  "original_files_and_initial_evaluation_preserved": {
+    "runs/baseline/best.pt": "454736b54b8308d404e0609c33874b37d9bc1712b2b6576088ff9fcd760e3d5e",
+    "runs/baseline/history.json": "f44a5e072d4527dc754303a9aeba64b0bdd0fcb578e742e519f864d49cad5137",
+    "data/splits/train.txt": "600a03c524831bc7ff983be44b9b43ac65c529172c22a3958d6f643fb3f0d638",
+    "data/splits/val.txt": "b506ff08cab214667087ac3c6fe0954a73956a48b5aed5d6ee7c1045bcca3076",
+    "data/splits/test.txt": "8bbb1133e6390e760573bfc0b515f3ace2e103583f56c47d340e65520159d42d",
+    "report/stage2/val/metrics.json": "8df892df03b534fdb5eba246143710ae4d07ef31ce9691b0f9bddddaab478a88",
+    "report/stage2/val/per_image.csv": "42f851f615bd81e0224e0de2e788827511abb8f88e590041eaccd009fac05d8b"
+  },
+  "validation_csv_rows": 736,
+  "unique_image_ids": 736,
+  "csv_reaggregation_matches_json": true,
+  "tf32_disabled_batch_sizes_8_and_3_identical": true,
+  "numerical_test_count": 16,
+  "numerical_tests_passed": true,
+  "test_inference_run": false,
+  "new_training_run": false,
+  "tuning_or_sensitivity_run": false,
+  "previous_report_images_unchanged_from_git": {
+    "report/example_train.png": "a963acbfd7b0e3959c8f18caf62d0d6ac5f510887a76816d1b2dd8dea773f048",
+    "report/example_val.png": "16928247d09272ff200f0dba0ad20ec5f96b56c97bde1d0ffd07e0c388b71be6",
+    "report/predictions_test.png": "14db024a1f7b33a1ae9cf5986531802ef9c512f6adee3f382c3047cc2d9748dc",
+    "report/predictions_val.png": "b19f5c455c7065fa851b4179914cd81711ea828d1b529fe41b506067081ea1ee"
+  }
+}
