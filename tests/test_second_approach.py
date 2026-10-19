@@ -13,6 +13,9 @@ from torch.utils.data import DataLoader, TensorDataset
 from src.losses import BCEDiceLoss, SoftDiceLoss
 from src.metrics import binary_metrics
 from src.train import TrainingConfig, train_model, validate_config, validate_epoch
+from src.second_approach_report import compare_evidence, load_evidence, select_examples
+from src.metrics import aggregate_metrics
+from src.evaluate import save_results
 
 
 class ValidationChecks(unittest.TestCase):
@@ -72,6 +75,58 @@ class ValidationChecks(unittest.TestCase):
     def test_invalid_selection_metric(self):
         with self.assertRaisesRegex(ValueError, "selection_metric"):
             validate_config(TrainingConfig(selection_metric="test_dice"))
+
+
+class EvidenceChecks(unittest.TestCase):
+    def fixture(self):
+        rows = []
+        for index, prediction in enumerate(([1, 0], [0, 1], [1, 1], [0, 0])):
+            target = [1, 0] if index < 3 else [0, 0]
+            values = binary_metrics(torch.tensor([prediction]), torch.tensor([target]))
+            row = {key: value.item() for key, value in values.items()}
+            rows.append({"image_id": f"image_{index}", "dataset_index": index,
+                         "input_sha256": str(index), "target_sha256": str(index), **row})
+        summary = {"split": "val", "sample_count": 4, "threshold": .5,
+                   "split_sha256": "split", "preprocessing": {}, "metric_definitions": {},
+                   "precision": {}, "metrics": aggregate_metrics(rows), "checkpoint_sha256": "checkpoint"}
+        return summary, rows
+
+    def test_roundtrip_and_matched_comparison(self):
+        evidence = self.fixture()
+        with tempfile.TemporaryDirectory() as temporary:
+            save_results(temporary, *evidence)
+            loaded = load_evidence(temporary)
+        self.assertEqual(loaded, evidence)
+        summary, paired = compare_evidence(evidence, loaded)
+        self.assertTrue(all(value == 0 for value in summary["delta"].values()))
+        self.assertEqual(summary["images_with_unchanged_dice"], 4)
+        self.assertEqual(summary["empty_target_ids"], ["image_3"])
+        examples, _ = select_examples(paired)
+        self.assertEqual(len({r["image_id"] for r in examples}), 3)
+        self.assertTrue(all(not r["empty_target"] for r in examples))
+
+    def test_reject_changed_inputs_and_protocol(self):
+        for changed in ("input_sha256", "target_sha256", "threshold", "precision"):
+            baseline = self.fixture()
+            approach = self.fixture()
+            if changed in ("threshold", "precision"):
+                approach[0][changed] = "different"
+            else:
+                approach[1][0][changed] = "different"
+            with self.subTest(changed=changed), self.assertRaises(ValueError):
+                compare_evidence(baseline, approach)
+
+    def test_reject_test_split_and_inconsistent_metrics(self):
+        for change in ("test", "metrics"):
+            summary, rows = self.fixture()
+            if change == "test":
+                summary["split"] = "test"
+            else:
+                summary["metrics"]["foreground_iou"] = -1
+            with tempfile.TemporaryDirectory() as temporary:
+                save_results(temporary, summary, rows)
+                with self.assertRaises(ValueError):
+                    load_evidence(temporary)
 
 
 if __name__ == "__main__":
