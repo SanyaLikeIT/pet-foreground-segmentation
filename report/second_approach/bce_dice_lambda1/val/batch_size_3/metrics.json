@@ -1,0 +1,90 @@
+{
+  "split": "val",
+  "sample_count": 736,
+  "threshold": 0.5,
+  "checkpoint_path": "/home/perugius/Desktop/CV/pet-foreground-segmentation/runs/second_approach/bce_dice_lambda1/best.pt",
+  "checkpoint_sha256": "9a7dfc587b889a5ee90a7e1de72bb03f1c354903d376fc199676c25b36511aca",
+  "checkpoint_epoch": 9,
+  "checkpoint_val_loss": 0.23391790477477986,
+  "checkpoint_config": {
+    "data_root": "data/raw",
+    "output_dir": "runs/second_approach/bce_dice_lambda1",
+    "epochs": 20,
+    "batch_size": 8,
+    "learning_rate": 0.0003,
+    "weight_decay": 0.0001,
+    "num_workers": 0,
+    "seed": 42,
+    "freeze_encoder_epochs": 0,
+    "pretrained_encoder": true,
+    "device": "cuda",
+    "patience": 5,
+    "loss": "bce_dice",
+    "dice_weight": 1.0,
+    "selection_metric": "val_bce",
+    "disable_tf32": true
+  },
+  "data_root": "/home/perugius/Desktop/CV/pet-foreground-segmentation/data/raw",
+  "split_sha256": "b506ff08cab214667087ac3c6fe0954a73956a48b5aed5d6ee7c1045bcca3076",
+  "device": "cuda",
+  "device_name": "NVIDIA GeForce RTX 4060 Laptop GPU",
+  "torch_version": "2.14.1+cu130",
+  "precision": {
+    "matmul_allow_tf32": false,
+    "cudnn_allow_tf32": false,
+    "inference_dtype": "float32 (no autocast)"
+  },
+  "evaluation_mode": "model.eval() and torch.inference_mode()",
+  "preprocessing": {
+    "image_size": [
+      256,
+      256
+    ],
+    "image_resize": "bilinear",
+    "mask_resize": "nearest neighbor",
+    "mean": [
+      0.485,
+      0.456,
+      0.406
+    ],
+    "std": [
+      0.229,
+      0.224,
+      0.225
+    ],
+    "augmentation": "none",
+    "foreground": "trimap == 1"
+  },
+  "batch_size": 3,
+  "metric_definitions": {
+    "foreground_iou": "Per-image TP / (TP + FP + FN), arithmetic mean over images",
+    "foreground_dice": "Per-image 2*TP / (2*TP + FP + FN), arithmetic mean over images",
+    "pixel_accuracy": "Total correct foreground/background pixels / total evaluated pixels",
+    "empty_mask_convention": "Both prediction and target empty: IoU=Dice=1; only one empty: 0",
+    "prediction": "sigmoid(raw logits) >= threshold; trimap == 1 is foreground"
+  },
+  "metrics": {
+    "foreground_iou": 0.8456189999486573,
+    "foreground_dice": 0.9109544267714587,
+    "pixel_accuracy": 0.9536199569702148
+  },
+  "batch_size_check": {
+    "other_batch_size": 3,
+    "other_metrics": {
+      "foreground_iou": 0.8456189999486573,
+      "foreground_dice": 0.9109544267714587,
+      "pixel_accuracy": 0.9536199569702148
+    },
+    "identical_image_order": true,
+    "identical_preprocessed_images_and_masks": true,
+    "aggregate_absolute_differences": {
+      "foreground_iou": 0.0,
+      "foreground_dice": 0.0,
+      "pixel_accuracy": 0.0
+    },
+    "max_per_image_score_difference": 0.0,
+    "aggregate_tolerance": 1e-05,
+    "per_image_tolerance": 0.001,
+    "passed": true
+  }
+}

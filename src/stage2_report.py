@@ -15,7 +15,7 @@ import torch
 
 from src.check_dataset import denormalize
 from src.dataset import PetSegDataset, get_val_transform
-from src.evaluate import file_sha256, load_checkpoint_model
+from src.evaluate import file_sha256, load_checkpoint_model, split_sha256
 from src.metrics import binary_metrics
 from src.train import select_device
 
@@ -109,7 +109,7 @@ def main():
     if summary["checkpoint_sha256"] != file_sha256(args.checkpoint):
         raise ValueError("Metrics were produced with a different checkpoint")
     split_path = Path(__file__).resolve().parents[1] / "data" / "splits" / "val.txt"
-    if summary["split_sha256"] != file_sha256(split_path):
+    if summary["split_sha256"] != split_sha256(split_path):
         raise ValueError("Metrics were produced with a different validation split")
     with (metrics_dir / "per_image.csv").open(newline="", encoding="utf-8") as source:
         rows = list(csv.DictReader(source))

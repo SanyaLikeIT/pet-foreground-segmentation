@@ -1,0 +1,67 @@
+{
+  "split": "val",
+  "sample_count": 736,
+  "threshold": 0.5,
+  "checkpoint_path": "/home/perugius/Desktop/CV/pet-foreground-segmentation/runs/baseline/best.pt",
+  "checkpoint_sha256": "454736b54b8308d404e0609c33874b37d9bc1712b2b6576088ff9fcd760e3d5e",
+  "checkpoint_epoch": 11,
+  "checkpoint_val_loss": 0.10701909580308458,
+  "checkpoint_config": {
+    "data_root": "data/raw",
+    "output_dir": "runs/baseline",
+    "epochs": 20,
+    "batch_size": 8,
+    "learning_rate": 0.0003,
+    "weight_decay": 0.0001,
+    "num_workers": 0,
+    "seed": 42,
+    "freeze_encoder_epochs": 0,
+    "pretrained_encoder": true,
+    "device": "auto",
+    "patience": 5
+  },
+  "data_root": "/home/perugius/Desktop/CV/pet-foreground-segmentation/data/raw",
+  "split_sha256": "b506ff08cab214667087ac3c6fe0954a73956a48b5aed5d6ee7c1045bcca3076",
+  "device": "cuda",
+  "device_name": "NVIDIA GeForce RTX 4060 Laptop GPU",
+  "torch_version": "2.14.1+cu130",
+  "precision": {
+    "matmul_allow_tf32": false,
+    "cudnn_allow_tf32": false,
+    "inference_dtype": "float32 (no autocast)"
+  },
+  "evaluation_mode": "model.eval() and torch.inference_mode()",
+  "preprocessing": {
+    "image_size": [
+      256,
+      256
+    ],
+    "image_resize": "bilinear",
+    "mask_resize": "nearest neighbor",
+    "mean": [
+      0.485,
+      0.456,
+      0.406
+    ],
+    "std": [
+      0.229,
+      0.224,
+      0.225
+    ],
+    "augmentation": "none",
+    "foreground": "trimap == 1"
+  },
+  "batch_size": 8,
+  "metric_definitions": {
+    "foreground_iou": "Per-image TP / (TP + FP + FN), arithmetic mean over images",
+    "foreground_dice": "Per-image 2*TP / (2*TP + FP + FN), arithmetic mean over images",
+    "pixel_accuracy": "Total correct foreground/background pixels / total evaluated pixels",
+    "empty_mask_convention": "Both prediction and target empty: IoU=Dice=1; only one empty: 0",
+    "prediction": "sigmoid(raw logits) >= threshold; trimap == 1 is foreground"
+  },
+  "metrics": {
+    "foreground_iou": 0.8529946807133502,
+    "foreground_dice": 0.9150923228105341,
+    "pixel_accuracy": 0.9577080477838931
+  }
+}

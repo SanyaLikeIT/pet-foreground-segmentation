@@ -15,7 +15,7 @@ from src.metrics import binary_metrics
 from src.train import TrainingConfig, train_model, validate_config, validate_epoch
 from src.second_approach_report import compare_evidence, load_evidence, select_examples
 from src.metrics import aggregate_metrics
-from src.evaluate import save_results
+from src.evaluate import file_sha256, save_results, split_sha256
 
 
 class ValidationChecks(unittest.TestCase):
@@ -78,6 +78,27 @@ class ValidationChecks(unittest.TestCase):
 
 
 class EvidenceChecks(unittest.TestCase):
+    def test_split_hash_accepts_lf_and_crlf_with_saved_evidence(self):
+        root = Path(__file__).resolve().parents[1]
+        content = (root / "data/splits/val.txt").read_bytes().replace(b"\r\n", b"\n")
+        summary = json.loads((root / "report/second_approach/baseline/val/metrics.json").read_text())
+        expected = summary["split_sha256"]
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "val.txt"
+            for endings in (content, content.replace(b"\n", b"\r\n"),
+                            content.replace(b"\n", b"\r\n", 1)):
+                with self.subTest(endings=endings[:20]):
+                    path.write_bytes(endings)
+                    self.assertEqual(split_sha256(path), expected)
+            self.assertNotEqual(file_sha256(path), expected)
+
+            lines = content.splitlines(keepends=True)
+            for changed in ([b"3680\n", *lines[1:]],
+                            [lines[1], lines[0], *lines[2:]], lines[:-1]):
+                with self.subTest(changed=changed[:2]):
+                    path.write_bytes(b"".join(changed))
+                    self.assertNotEqual(split_sha256(path), expected)
+
     def fixture(self):
         rows = []
         for index, prediction in enumerate(([1, 0], [0, 1], [1, 1], [0, 0])):

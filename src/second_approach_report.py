@@ -12,7 +12,7 @@ import torch
 
 from src.check_dataset import denormalize
 from src.dataset import PetSegDataset, get_val_transform
-from src.evaluate import file_sha256, load_checkpoint_model
+from src.evaluate import file_sha256, load_checkpoint_model, split_sha256
 from src.metrics import aggregate_metrics, binary_metrics
 from src.train import select_device
 
@@ -160,7 +160,7 @@ def main():
     approach = load_evidence(args.approach_metrics)
     summary, paired = compare_evidence(baseline, approach)
     split_path = Path(__file__).resolve().parents[1] / "data/splits/val.txt"
-    if summary["validation_split_sha256"] != file_sha256(split_path):
+    if summary["validation_split_sha256"] != split_sha256(split_path):
         raise ValueError("Saved validation split changed")
     base_history = json.loads(Path(args.baseline_history).read_text())
     new_history = json.loads(Path(args.approach_history).read_text())
