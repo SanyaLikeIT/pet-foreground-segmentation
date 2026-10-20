@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 import numpy as np
 from src.dataset import PetSegDataset, get_train_transform, get_val_transform
@@ -32,13 +34,21 @@ def show_samples(split, transform, n=3, save_path=None):
 
     plt.tight_layout()
     if save_path:
+        Path(save_path).parent.mkdir(parents=True, exist_ok=True)
         plt.savefig(save_path, dpi=150)
         print(f'saved: {save_path}')
     plt.close()
 
 
-if __name__ == '__main__':
+def main():
+    for split in ('train', 'val', 'test'):
+        dataset = PetSegDataset('data/raw', split=split)
+        print(f'{split + ":":<7}{len(dataset)} samples')
     show_samples('train', get_train_transform(), n=3,
                  save_path='report/example_train.png')
     show_samples('val', get_val_transform(), n=3,
                  save_path='report/example_val.png')
+
+
+if __name__ == '__main__':
+    main()

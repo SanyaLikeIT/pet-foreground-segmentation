@@ -1,8 +1,9 @@
 # Pet Foreground Segmentation with U-Net
 
 Binary segmentation of pets (cats and dogs) from the background on the
-Oxford-IIIT Pet dataset. Stage 2 evaluates the existing BCE baseline. BCE
-versus BCE + Dice comparisons and sensitivity experiments are later work.
+Oxford-IIIT Pet dataset. Stage 2 evaluates the BCE baseline. The
+second approach compares it with BCE + Dice (lambda=1) on validation;
+see [Second approach](#second-approach-bce--dice).
 
 ## Task
 
@@ -26,16 +27,19 @@ pet_seg/
 │   ├── losses.py            # BCE, per-image soft Dice, and BCE + Dice
 │   ├── metrics.py           # foreground IoU/Dice and pixel accuracy
 │   ├── evaluate.py          # checkpoint evaluation to JSON and CSV
-│   ├── inspect_baseline.py  # safe checkpoint/history/device audit
+│   ├── inspect_baseline.py  # checkpoint, history and device inspection
 │   ├── validate_data.py     # split integrity and binary mask checks
 │   ├── stage2_report.py     # original loss curve and validation errors
+│   ├── second_approach_report.py  # matched BCE / BCE+Dice validation comparison
 │   ├── tune.py              # hyperparameter search
 │   └── visualize_predictions.py  # checkpoint visualization
 ├── report/
 │   ├── example_train.png
 │   ├── example_val.png
-│   └── stage2/              # new evidence; previous artifacts are preserved
+│   ├── stage2/              # first working model evidence
+│   └── second_approach/     # BCE / BCE+Dice validation evidence
 ├── tests/test_stage2.py     # numerical and aggregation checks
+├── tests/test_second_approach.py  # common selection and paired evidence checks
 ├── requirements.txt
 └── README.md
 ```
@@ -55,6 +59,9 @@ source .venv/bin/activate
 python -m pip install -r requirements.txt
 ```
 
+On Windows, activate the environment with `.venv\Scripts\activate` in
+Command Prompt or `.venv\Scripts\Activate.ps1` in PowerShell.
+
 The verified Stage 2 environment uses Python 3.14.7, PyTorch 2.14.1+cu130,
 torchvision 0.29.1+cu130, and albumentations 2.0.8. Its installed packages are
 recorded in `report/stage2/environment.txt`. The GPU build was installed with:
@@ -63,8 +70,9 @@ recorded in `report/stage2/environment.txt`. The GPU build was installed with:
 python -m pip install --force-reinstall torch==2.14.1+cu130 torchvision==0.29.1+cu130 --index-url https://download.pytorch.org/whl/cu130
 ```
 
-Evaluation ran on an NVIDIA GeForce RTX 4060 Laptop GPU (8 GB). In the Codex
-sandbox, NVIDIA devices are hidden; CUDA commands must run outside that sandbox.
+Evaluation ran on an NVIDIA GeForce RTX 4060 Laptop GPU (8 GB). CUDA commands
+require a GPU-enabled execution environment.
+
 ## Data preparation
 
 Download the dataset and create the splits:
@@ -129,8 +137,7 @@ Masks are binary `float32` tensors of shape `(1, 256, 256)` with values `{0, 1}`
 
 ## Training
 
-These commands are for future training, **not needed for Stage 2 evaluation**.
-Use a new output directory to preserve the archived baseline:
+Train a model with:
 
 ```bash
 python -m src.train --output-dir runs/new_baseline
@@ -138,26 +145,29 @@ python -m src.train --output-dir runs/new_baseline
 
 The architecture is the custom torchvision-based U-Net in `src/model.py`,
 with an ImageNet-pretrained ResNet-34 encoder, five decoder blocks, skip
-connections, and a one-channel convolutional head. It is **not** a
-segmentation-models-pytorch model. It produces raw logits at 256 x 256.
+connections, and a one-channel convolutional head producing raw logits at
+256 x 256.
 
-The default `--loss bce` reuses `torch.nn.BCEWithLogitsLoss`. The optional
+The default `--loss bce` uses `torch.nn.BCEWithLogitsLoss`. The optional
 `--loss bce_dice --dice-weight 1.0` computes BCE + lambda * soft Dice loss.
 For each image, soft Dice is `(2*sum(sigmoid(logits)*mask) + 1e-6) /
 (sum(sigmoid(logits)) + sum(mask) + 1e-6)`; loss is one minus this score,
 averaged over images. The smoothing constant is `1e-6`; predictions are never
 thresholded in the loss. `dice_weight` must be finite and nonnegative.
 
-The `train_model` function still accepts a `criterion`
+The `train_model` function accepts a `criterion`
 argument for experiments with other loss functions. The criterion receives
 raw logits and binary masks of the same shape.
 
 ## Checkpoints
 
-The best checkpoint is saved to `runs/baseline/best.pt`. The per-epoch losses,
-configuration, and best epoch are saved to `runs/baseline/history.json`.
+By default, the best checkpoint is saved to `runs/baseline/best.pt`. The
+per-epoch losses, configuration, and best epoch are saved to
+`runs/baseline/history.json`. `--output-dir` changes this directory. Choose a
+new directory for each run: training refuses to overwrite existing artifacts
+and does not support resuming interrupted runs.
 
-The archived baseline was selected by **minimum validation BCE**, not Dice.
+The baseline was selected by **minimum validation BCE**.
 Its verified settings are: AdamW, learning rate 0.0003, weight decay 0.0001,
 batch size 8, seed 42, zero frozen-encoder epochs, pretrained encoder, zero
 data-loader workers, 20 requested epochs, and early-stopping patience 5.
@@ -165,10 +175,15 @@ The best epoch is **11**, validation BCE **0.10701909580308458**; history ends
 at epoch **16**, consistent with early stopping. `device=auto` was recorded;
 the original training hardware and runtime were not recorded.
 
-Defaults and checkpoint selection are preserved: each new run minimizes its
-chosen validation loss. New metadata records the configured loss, effective
-criterion class, Dice weight (zero for plain BCE), and `selection_metric=val_loss`.
-Existing checkpoint and history files are not migrated or rewritten.
+The default selection policy minimizes the chosen validation loss.
+`--selection-metric val_bce` instead uses a common validation BCE for checkpoint
+selection and early stopping, independently of the training objective. Each
+epoch also records validation BCE, soft Dice loss, hard IoU/Dice at threshold
+0.5 and elapsed time. `--disable-tf32` disables TF32 for both CUDA matmul and
+cuDNN convolutions. Training metadata records the configured loss, effective
+criterion class, Dice weight (zero for plain BCE), selection criterion and
+its value. A separate `run_info.json` records initialization, source/split
+hashes, Git revision, device, library versions and precision flags.
 
 ## Train examples
 
@@ -177,17 +192,14 @@ python -m src.train --output-dir runs/new_baseline --epochs 20 --batch-size 8 --
 ```
 
 ### Additional flags
+
 - `--random-encoder`. Starts training without pretrained weights.
 - `--patience 0` disables early stopping.
 
 ## Hyperparameter tuning
 
-The existing tuning script supports LR, batch size and weight decay. It was
-not run for Stage 2; its commands below are for later milestones.
+The tuning script searches over learning rate, batch size and weight decay:
 
-Other parameters from the train function could be used here as well, but they won't support tuning.
-
-This is an example of how to start a hyperparameter tuning.
 ```bash
 python -m src.tune --learning-rates 0.0003 0.0001 --batch-sizes 8 16 --weight-decays 0 0.0001
 ```
@@ -221,7 +233,7 @@ The default foreground probability threshold is `0.5` and can be changed with `-
 
 ## Stage 2: baseline validation evidence
 
-Run from the repository root using the activated `.venv`. No training is involved:
+Evaluate the saved baseline from the repository root using the activated `.venv`:
 
 ```bash
 python -m src.inspect_baseline --checkpoint runs/baseline/best.pt --history runs/baseline/history.json --device cuda --output report/stage2/baseline_audit.json
@@ -258,10 +270,9 @@ count, threshold, preprocessing, device, precision and metric definitions.
 pixel counts and hashes of the actual preprocessed inputs/masks.
 The second pass is saved under `val_fp32/batch_size_3/`.
 
-The first evaluation is preserved in `report/stage2/val/`. Its batch-size
-check exceeded the per-image tolerance (maximum score difference 0.001048308;
-aggregate differences below 0.000004). Exactly one full comparison was
-repeated with TF32 disabled for CUDA matmul and cuDNN convolutions. Batch
+The initial evaluation in `report/stage2/val/` exceeded the per-image
+batch-size tolerance (maximum score difference 0.001048308; aggregate
+differences below 0.000004). With TF32 disabled for CUDA matmul and cuDNN, batch
 sizes 8 and 3 then produced identical input hashes, per-image metrics and
 aggregate results. The original tolerances remain 1e-5 for aggregate metrics
 and 1e-3 for per-image IoU/Dice. This verifies the two tested batch sizes on
@@ -274,34 +285,58 @@ examples use seed 42. Three worst predictions are selected by foreground
 IoU, with ties broken by image identifier. Their original trimaps contain
 only background; they are retained in all aggregate results. A separate
 figure shows the three worst cases with nonempty targets for interpretation.
-Previous `report/*.png`, `best.pt`, `history.json`, and saved splits are intact.
-No test inference, retraining, tuning or sensitivity experiments were run.
 
 If data are missing, `python -m src.validate_data --splits-only` checks the
 saved indices, and `python -m src.stage2_report` can still plot the original
 history. Full evaluation requires the images, trimaps and official
 `annotations/trainval.txt` (or `annotations/test.txt` for explicit final test
-evaluation), plus a compatible complete checkpoint. Use a new output path
-when rerunning evidence to retain earlier results.
+evaluation), plus a compatible complete checkpoint.
 
-## Later loss comparison and sensitivity experiments
+## Second approach: BCE + Dice
 
-Plan BCE versus BCE+Dice and lambda in **{0.5, 1.0, 2.0}**. Use the same
-saved splits, initialization seed (42), pretrained weights, transformations,
-optimizer, training settings, evaluation threshold and checkpoint-selection
-policy. Before these runs, implement a common selection metric, for example
-validation BCE for every objective, matching the archived baseline. Currently
-`--loss bce_dice` selects by combined validation loss; Stage 2 deliberately
-preserves this existing loss-based selection behavior.
+The second approach changes the training objective to
+`BCEWithLogitsLoss + 1.0 * SoftDiceLoss`. The custom U-Net, ImageNet-pretrained
+ResNet-34 encoder, saved splits, transforms, AdamW settings, batch size 8 and
+seed 42 match the archived baseline. Training starts from pretrained encoder
+weights and a newly initialized decoder, not from the trained BCE checkpoint.
+Both approaches use minimum validation BCE for checkpoint selection and early
+stopping (20 maximum epochs, patience 5). Lambda=1 was fixed before training.
+The comparison uses the validation split.
 
-The future objective can be configured with, for example:
+Activate `.venv` and run from the repository root on a CUDA-enabled machine:
 
 ```bash
-python -m src.train --output-dir runs/later_bce_dice_lambda1 --loss bce_dice --dice-weight 1.0 --epochs 20 --batch-size 8 --learning-rate 0.0003 --weight-decay 0.0001 --freeze-encoder-epochs 0 --seed 42 --patience 5 --device cuda
+python -m unittest discover -s tests -v
+python -m src.validate_data --data-root data/raw --output report/second_approach/data_check.json
+python -u -m src.train --output-dir runs/second_approach/bce_dice_lambda1 --loss bce_dice --dice-weight 1.0 --selection-metric val_bce --disable-tf32 --epochs 20 --batch-size 8 --learning-rate 0.0003 --weight-decay 0.0001 --freeze-encoder-epochs 0 --num-workers 0 --seed 42 --patience 5 --device cuda
+python -m src.evaluate --checkpoint runs/baseline/best.pt --split val --device cuda --batch-size 8 --threshold 0.5 --disable-tf32 --output report/second_approach/baseline/val
+python -m src.evaluate --checkpoint runs/second_approach/bce_dice_lambda1/best.pt --split val --device cuda --batch-size 8 --check-batch-size 3 --threshold 0.5 --disable-tf32 --output report/second_approach/bce_dice_lambda1/val
+python -m src.second_approach_report --device cuda
 ```
 
-This command has **not** been executed and should wait for the common
-selection policy. Compare approaches using the same validation IoU/Dice
-metrics; do not select a winner by comparing raw BCE and raw BCE+Dice loss
-values, which have different scales. Reserve test evaluation for the final
-fixed experiment design. No loss-comparison or tuning results are claimed.
+To generate the comparison report from saved evaluations and checkpoints on CPU:
+
+```bash
+python -m src.second_approach_report --device cpu
+```
+
+For a rerun, choose a fresh training output directory and pass the corresponding
+checkpoint, history and evaluation paths to the evaluation/report commands.
+The report command checks validation-only evidence, matching protocols,
+identical input/target hashes, aggregate metrics against CSV rows, completed
+runs and common BCE selection. It saves comparison tables, paired per-image
+changes, learning curves, and predictions for the largest Dice increase,
+largest decrease and smallest absolute change among nonempty targets. A
+second figure revisits three previously documented baseline failures.
+
+Results and limitations are recorded in
+[report/second_approach/results.md](report/second_approach/results.md).
+Histories and run metadata accompany the evaluation results. Generating the
+figures requires both checkpoints: `runs/baseline/best.pt` and
+`runs/second_approach/bce_dice_lambda1/best.pt`. Checkpoints are stored locally
+and are not included in Git.
+
+The comparison uses one seed. The baseline training environment and runtime
+were not fully recorded, which limits reproducibility. Global IoU/Dice measure
+foreground overlap; boundary quality requires a dedicated metric. Lambda
+sensitivity and final test evaluation have not been measured.

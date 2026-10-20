@@ -1,2 +1,6 @@
-# Python's csv writer uses standard CRLF; preserve the evaluation artifacts.
+data/splits/*.txt text eol=lf
+
+# Preserve CRLF in csv.writer output and the original baseline history.
 report/stage2/**/*.csv whitespace=cr-at-eol
+report/second_approach/**/*.csv whitespace=cr-at-eol
+report/second_approach/baseline_history.json whitespace=cr-at-eol

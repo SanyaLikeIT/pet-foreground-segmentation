@@ -23,6 +23,12 @@ def file_sha256(path):
     return digest.hexdigest()
 
 
+def split_sha256(path):
+    """Hash split text with LF endings so Git's CRLF conversion is harmless."""
+    content = Path(path).read_bytes().replace(b"\r\n", b"\n")
+    return hashlib.sha256(content).hexdigest()
+
+
 def load_checkpoint_model(checkpoint_path, device):
     """Restore a complete checkpoint safely, strictly, and without a weight download."""
     checkpoint = torch.load(checkpoint_path, map_location="cpu", weights_only=True)
@@ -137,7 +143,7 @@ def main():
         "checkpoint_val_loss": checkpoint.get("val_loss"),
         "checkpoint_config": checkpoint.get("config"),
         "data_root": str(Path(args.data_root).resolve()),
-        "split_sha256": file_sha256(split_path),
+        "split_sha256": split_sha256(split_path),
         "device": str(device),
         "device_name": torch.cuda.get_device_name(device) if device.type == "cuda" else "cpu",
         "torch_version": torch.__version__,

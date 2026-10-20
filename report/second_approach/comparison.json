@@ -1,0 +1,36 @@
+{
+  "split": "val",
+  "sample_count": 736,
+  "threshold": 0.5,
+  "selection_metric": "minimum validation BCE for both checkpoints and early stopping",
+  "baseline": {
+    "foreground_iou": 0.8529946807133502,
+    "foreground_dice": 0.9150923228105341,
+    "pixel_accuracy": 0.9577080477838931
+  },
+  "bce_dice_lambda1": {
+    "foreground_iou": 0.8456189999486573,
+    "foreground_dice": 0.9109544267714587,
+    "pixel_accuracy": 0.9536199569702148
+  },
+  "delta": {
+    "foreground_iou": -0.00737568076469286,
+    "foreground_dice": -0.004137896039075439,
+    "pixel_accuracy": -0.004088090813678225
+  },
+  "images_with_improved_dice": 324,
+  "images_with_worse_dice": 409,
+  "images_with_unchanged_dice": 3,
+  "empty_target_ids": [
+    "saint_bernard_108",
+    "Egyptian_Mau_196",
+    "Egyptian_Mau_165"
+  ],
+  "identical_image_order_and_preprocessed_inputs": true,
+  "baseline_checkpoint_sha256": "454736b54b8308d404e0609c33874b37d9bc1712b2b6576088ff9fcd760e3d5e",
+  "approach_checkpoint_sha256": "9a7dfc587b889a5ee90a7e1de72bb03f1c354903d376fc199676c25b36511aca",
+  "validation_split_sha256": "b506ff08cab214667087ac3c6fe0954a73956a48b5aed5d6ee7c1045bcca3076",
+  "baseline_best_epoch": 11,
+  "approach_best_epoch": 9,
+  "approach_training_seconds": 980.9523175509999
+}

@@ -1,0 +1,96 @@
+{
+  "branch": "second_approach",
+  "main_commit_unchanged": "548d3807c5cb0c75bf108eaf6f8b3092af962202",
+  "preserved_artifact_sha256": {
+    "runs/baseline/best.pt": "454736b54b8308d404e0609c33874b37d9bc1712b2b6576088ff9fcd760e3d5e",
+    "runs/baseline/history.json": "f44a5e072d4527dc754303a9aeba64b0bdd0fcb578e742e519f864d49cad5137",
+    "runs/experiments/bce_dice_0_5/best.pt": "51fc64fb3a82fd5c187bb523f4834807f39c7f63b6a86e759b8c0fa8efc3b468",
+    "runs/experiments/bce_dice_0_5/history.json": "7c6f28ace8771a3997d1e1a90df8080026f465ca9f6e30c979e101c2779c8d31",
+    "data/splits/train.txt": "600a03c524831bc7ff983be44b9b43ac65c529172c22a3958d6f643fb3f0d638",
+    "data/splits/test.txt": "8bbb1133e6390e760573bfc0b515f3ace2e103583f56c47d340e65520159d42d",
+    "data/splits/val.txt": "b506ff08cab214667087ac3c6fe0954a73956a48b5aed5d6ee7c1045bcca3076",
+    "Pet_Segmentation_Use_Existing_Baseline.ipynb": "bcd4884033394d9f1a7af5f797229f63564f5df1216c8014cf7aea742e906eaa",
+    "Pet_Segmentation_Saved_Baseline_Results.ipynb": "2127d1d835f6a1da36a373272ba72141dec07c2d49c7f058a68e44a91dccc484",
+    "Pet_Segmentation_Full_Experiments.ipynb": "9eac179c616b5da9b10ad17d18e690205b6145d28db589371643cbc60b037c26"
+  },
+  "all_preserved_artifact_hashes_match": true,
+  "original_scientific_files_unchanged_from_main": {
+    "data/splits/test.txt": true,
+    "data/splits/train.txt": true,
+    "data/splits/val.txt": true,
+    "report/example_train.png": true,
+    "report/example_val.png": true,
+    "report/predictions_test.png": true,
+    "report/predictions_val.png": true,
+    "report/stage2/baseline_audit.json": true,
+    "report/stage2/data_check.json": true,
+    "report/stage2/environment.txt": true,
+    "report/stage2/example_selection.json": true,
+    "report/stage2/loss_curve.png": true,
+    "report/stage2/results.md": true,
+    "report/stage2/split_check.json": true,
+    "report/stage2/val/metrics.json": true,
+    "report/stage2/val/per_image.csv": true,
+    "report/stage2/val_fp32/batch_size_3/metrics.json": true,
+    "report/stage2/val_fp32/batch_size_3/per_image.csv": true,
+    "report/stage2/val_fp32/metrics.json": true,
+    "report/stage2/val_fp32/per_image.csv": true,
+    "report/stage2/validation_examples.png": true,
+    "report/stage2/validation_poor.png": true,
+    "report/stage2/validation_poor_nonempty.png": true,
+    "report/stage2/verification.json": true,
+    "src/dataset.py": true,
+    "src/evaluate.py": true,
+    "src/losses.py": true,
+    "src/metrics.py": true,
+    "src/model.py": true
+  },
+  "training_source_and_split_hashes_match_current_files": {
+    "src/train.py": true,
+    "src/model.py": true,
+    "src/dataset.py": true,
+    "src/losses.py": true,
+    "src/metrics.py": true,
+    "data/splits/train.txt": true,
+    "data/splits/val.txt": true,
+    "data/splits/test.txt": true
+  },
+  "unit_test_command": "NO_ALBUMENTATIONS_UPDATE=1 MPLCONFIGDIR=/tmp/pet-seg-matplotlib .venv/bin/python -m unittest discover -s tests -v",
+  "unit_test_count": 23,
+  "unit_tests_passed": true,
+  "full_train_validation_mask_check_passed": true,
+  "common_bce_selection_and_stopping_condition_verified": true,
+  "new_checkpoint_epoch": 9,
+  "new_checkpoint_sha256": "9a7dfc587b889a5ee90a7e1de72bb03f1c354903d376fc199676c25b36511aca",
+  "new_batch_size_check": {
+    "other_batch_size": 3,
+    "other_metrics": {
+      "foreground_iou": 0.8456189999486573,
+      "foreground_dice": 0.9109544267714587,
+      "pixel_accuracy": 0.9536199569702148
+    },
+    "identical_image_order": true,
+    "identical_preprocessed_images_and_masks": true,
+    "aggregate_absolute_differences": {
+      "foreground_iou": 0.0,
+      "foreground_dice": 0.0,
+      "pixel_accuracy": 0.0
+    },
+    "max_per_image_score_difference": 0.0,
+    "aggregate_tolerance": 1e-05,
+    "per_image_tolerance": 0.001,
+    "passed": true
+  },
+  "baseline_current_minus_archived_validation": {
+    "foreground_iou": 0.0,
+    "foreground_dice": 0.0,
+    "pixel_accuracy": 0.0
+  },
+  "test_inference_run": false,
+  "lambda_sensitivity_run": false,
+  "baseline_retrained": false,
+  "report_input_paths_ignored_and_untracked": [
+    "runs/second_approach/REPORT_INPUT.md",
+    "runs/second_approach/REPORT_INPUT.pdf"
+  ]
+}
